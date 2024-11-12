@@ -1,0 +1,365 @@
+<!-- cart.hbs -->
+<!-- breadcrumb-section -->
+<div class="breadcrumb-section breadcrumb-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 text-center">
+                <div class="breadcrumb-text">
+                    <p>Fresh and Organic</p>
+                    <h1>Cart</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end breadcrumb section -->
+
+<!-- cart -->
+<div class="cart-section mt-150 mb-150">
+    <div class="container">
+        <div class="row" id="Carts">
+            <div class="col-lg-8 col-md-12">
+                <div class="cart-table-wrap">
+                    <table class="cart-table">
+                        <thead class="cart-table-head">
+                            <tr class="table-head-row">
+                                <th class="product-remove"></th>
+                                <th class="product-image">Product Image</th>
+                                <th class="product-name">Name</th>
+                                <th class="product-price">Price</th>
+                                <th class="product-quantity">Quantity</th>
+                                <th class="product-total">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartTableBody">
+                            <!-- Les données seront chargées ici dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="total-section">
+                    <table class="total-table">
+                        <thead class="total-table-head">
+                            <tr class="table-total-row">
+                                <th>Total</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="subTotal" class="total-data">
+                                <td><strong>Subtotal: </strong></td>
+                                <td>0</td>
+                            </tr>
+                            <tr class="total-data">
+                                <td><strong>Shipping: </strong></td>
+                                <td>$45</td>
+                            </tr>
+                            <tr class="total-data">
+                                <td><strong>Total: </strong></td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="cart-buttons">
+                        <a href="http://localhost:8800/api/checkout/" class="boxed-btn black">Check Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end cart -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        let subtotal = 0;
+        try {
+            const response = await fetch('http://localhost:8800/api/carts/');
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error('Erreur lors de la récupération des données');
+            }
+
+            const cartTableBody = document.getElementById('cartTableBody');
+            let html = '';
+
+            // Vérifier si le panier est vide
+            if (data.carts.length === 0) {
+                // Si le panier est vide, mettre subtotal et totalCost à 0
+                subtotal = 0;
+                const totalCost = 0;
+
+                // Mettre à jour les éléments HTML pour afficher 0€
+                document.querySelector('#subTotal td:nth-child(2)').textContent = `${subtotal}€`;
+                document.querySelector('.total-data:last-child td:nth-child(2)').textContent = `${totalCost}€`;
+
+                // Afficher un message indiquant que le panier est vide
+                cartTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center">
+                        Votre panier est vide.
+                    </td>
+                </tr>
+            `;
+                return; // Sortir de la fonction si le panier est vide
+            }
+
+            // Parcourir tous les paniers et leurs items
+            data.carts.forEach(cart => {
+                cart.items.forEach(item => {
+                    const imagePath = item.product_image
+                        ? `/images/product/${item.product_image}`
+                        : '/assets/img/products/product-img-1.jpg';
+
+                    subtotal += item.total_item_price;
+                    html += `
+                <tr class="table-body-row">
+                    <td class="product-remove">
+                    <input type="hidden" 
+                               name="cart_id"
+                               id="cart_id"
+                               value="${item.cart_id}"
+                               data-cart-item-id="${item.cart_item_id}">
+                        <a href="#" data-cart-item-id="${item.cart_item_id}">
+                            <i class="far fa-window-close"></i>
+                        </a>
+                    </td>
+                    <td class="product-image">
+                        <img src="${imagePath}" alt="${item.product_name}">
+                    </td>
+                    <td class="product-name">${item.product_name}</td>
+                    <td class="product-price">${item.cart_item_price}€</td>
+                    <td class="product-quantity">
+                    <input type="hidden" 
+                               name="cart_item_id"
+                               value="${item.cart_item_id}"
+                               data-cart-item-id="${item.cart_item_id}">
+                        <input type="number" 
+                               min="1"
+                               name="quantity"
+                               max="${item.stock_quantity}" 
+                               value="${item.quantity}"
+                               data-cart-item-id="${item.cart_item_id}">
+                    </td>
+                    <td class="product-total">${item.total_item_price}€</td>
+                </tr>
+            `;
+                });
+            });
+
+            cartTableBody.innerHTML = html;
+
+            // Mettre à jour le subtotal dans le tableau
+            document.querySelector('#subTotal td:nth-child(2)').textContent = `${subtotal}€`;
+            const shippingCost = 45;
+            const totalCost = subtotal + shippingCost;
+            document.querySelector('.total-data:last-child td:nth-child(2)').textContent = `${totalCost}€`;
+
+            // Ajouter les écouteurs d'événements pour la suppression et la mise à jour des quantités
+            initializeCartEvents();
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            document.getElementById('cartTableBody').innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center">
+                Une erreur est survenue lors du chargement du panier.
+            </td>
+        </tr>
+    `;
+        }
+    });
+
+    function initializeCartEvents() {
+
+        async function refreshCart() {
+            let subtotal = 0;
+            let totalCost = 0;
+            try {
+                const response = await fetch('http://localhost:8800/api/carts/');
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error('Erreur lors de la récupération des données');
+                }
+
+                const cartTableBody = document.getElementById('cartTableBody');
+                let html = '';
+
+                // Vérifier si le panier est vide
+                if (data.carts.length === 0) {
+                    // Si le panier est vide, afficher 0€ pour le sous-total et le total
+                    subtotal = 0;
+                    totalCost = 0;
+                    document.querySelector('#subTotal td:nth-child(2)').textContent = `${subtotal}€`;
+                    document.querySelector('.total-data:last-child td:nth-child(2)').textContent = `${totalCost}€`;
+
+                    // Afficher un message indiquant que le panier est vide
+                    cartTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">
+                    Votre panier est vide.
+                </td>
+            </tr>`;
+                    return; // Sortir de la fonction si le panier est vide
+                }
+
+                // Si le panier n'est pas vide, parcourir les items
+                data.carts.forEach(cart => {
+                    cart.items.forEach(item => {
+                        const imagePath = item.product_image
+                            ? `/images/product/${item.product_image}`
+                            : '/assets/img/products/product-img-1.jpg';
+                        subtotal += item.total_item_price;
+                        html += `
+                <tr class="table-body-row">
+                    <td class="product-remove">
+                        <input type="hidden" 
+                               name="cart_id"
+                               id="cart_id"
+                               value="${item.cart_id}"
+                               data-cart-item-id="${item.cart_item_id}">
+                        <a href="#" data-cart-item-id="${item.cart_item_id}">
+                            <i class="far fa-window-close"></i>
+                        </a>
+                    </td>
+                    <td class="product-image">
+                        <img src="${imagePath}" alt="${item.product_name}">
+                    </td>
+                    <td class="product-name">${item.product_name}</td>
+                    <td class="product-price">${item.cart_item_price}€</td>
+                    <td class="product-quantity">
+                        <input type="hidden" 
+                               name="cart_item_id"
+                               value="${item.cart_item_id}"
+                               data-cart-item-id="${item.cart_item_id}">
+                        <input type="number" 
+                               min="1"
+                               name="quantity"
+                               max="${item.stock_quantity}" 
+                               value="${item.quantity}"
+                               data-cart-item-id="${item.cart_item_id}">
+                    </td>
+                    <td class="product-total">${item.total_item_price}€</td>
+                </tr>
+                `;
+                    });
+                });
+
+                cartTableBody.innerHTML = html;
+
+                // Mettre à jour le sous-total et le total
+                document.querySelector('#subTotal td:nth-child(2)').textContent = `${subtotal}€`;
+                const shippingCost = 45;
+                totalCost = subtotal + shippingCost;
+                document.querySelector('.total-data:last-child td:nth-child(2)').textContent = `${totalCost}€`;
+
+                // Réinitialiser les événements sur les boutons et les inputs
+                initializeCartEvents();
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('cartTableBody').innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center">
+                Une erreur est survenue lors du chargement du panier.
+            </td>
+        </tr>
+        `;
+            }
+        }
+
+
+        // Gérer les changements de quantité
+        document.querySelectorAll('.product-quantity input').forEach(quantityInput => {
+            quantityInput.addEventListener('change', async function () {
+                const cartItemId = this.dataset.cartItemId;
+                const newQuantity = this.value;
+
+                // Demander à l'utilisateur de confirmer la modification
+                const userConfirmed = confirm(`Voulez-vous vraiment changer la quantité à ${newQuantity} ?`);
+
+                if (userConfirmed) {
+                    try {
+                        // Envoie une requête PUT pour mettre à jour la quantité de l'article dans le panier
+                        const response = await fetch(`http://localhost:8800/api/carts/${cartItemId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                quantity: newQuantity  // Envoyer seulement la nouvelle quantité dans le corps
+                            })
+                        });
+
+
+                        const result = await response.json();
+                        if (response.ok) {
+                            // Recalculer le total si nécessaire ou afficher un message de succès
+                            //console.log('Quantité mise à jour:', result);
+
+                            refreshCart();
+                            alert("La quantité a été mise à jour avec succès !");
+                            //window.location.reload();
+                        } else {
+                            console.error('Erreur lors de la mise à jour de la quantité:', result.message);
+                        }
+                    } catch (error) {
+                        console.error('Erreur lors de la mise à jour de la quantité:', error);
+                    }
+                } else {
+                    // Si l'utilisateur a annulé, restaurer la valeur précédente de l'input
+                    this.value = this.defaultValue;
+                }
+            });
+        });
+        // Gérer la suppression d'un article du panier
+        document.querySelectorAll('.product-remove a').forEach(deleteLink => {
+            deleteLink.addEventListener('click', async function (event) {
+                event.preventDefault(); // Empêcher le comportement par défaut du lien
+
+                const cartItemId = this.dataset.cartItemId; // Récupérer l'ID de l'article à supprimer
+                const cartId = this.closest('.product-remove').querySelector('input[name="cart_id"]').value; // Récupérer l'ID du panier
+
+                // Demander confirmation à l'utilisateur
+                const userConfirmed = confirm("Êtes-vous sûr de vouloir supprimer cet article du panier ?");
+
+                if (userConfirmed) {
+                    try {
+                        // Envoyer une requête DELETE pour supprimer l'article
+                        const response = await fetch(`http://localhost:8800/api/carts/${cartId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ cart_item_id: cartItemId })
+                        });
+
+                        const result = await response.json();
+                        if (response.ok) {
+                            // Afficher un message de succès
+                            alert(result.message);
+                            // Rafraîchir le panier pour mettre à jour l'affichage
+                            refreshCart();
+                            fetch('http://localhost:8800/api/carts/')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        document.getElementById('cart-count').textContent = data.cartCount;
+                                    }
+                                })
+                                .catch(error => console.error('Erreur:', error));
+                        } else {
+                            console.error('Erreur lors de la suppression de l\'article:', result.message);
+                        }
+                    } catch (error) {
+                        console.error('Erreur lors de la suppression de l\'article:', error);
+                    }
+                }
+            });
+        });
+    }
+
+</script>

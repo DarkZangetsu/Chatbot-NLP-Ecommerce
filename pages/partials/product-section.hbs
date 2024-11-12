@@ -1,0 +1,192 @@
+<!-- product section -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Fonction pour charger les produits
+        const loadProducts = async () => {
+            try {
+                console.log("Début du chargement des produits");
+                const response = await fetch('http://localhost:8800/api/products');
+                console.log("Réponse reçue:", response);
+
+                const products = await response.json();
+                console.log("Produits reçus:", products);
+
+                const productsContainer = document.querySelector('.products-row');
+                console.log("Container trouvé:", productsContainer);
+
+                if (!products || products.length === 0) {
+                    productsContainer.innerHTML = '<div class="col-12 text-center">Aucun produit disponible</div>';
+                    return;
+                }
+
+                // Vider le container avant d'ajouter les nouveaux produits
+                productsContainer.innerHTML = '';
+
+                products.forEach(product => {
+                    console.log("Traitement du produit:", product);
+                    const productHTML = createProductElement(product);
+                    productsContainer.insertAdjacentHTML('beforeend', productHTML);
+                });
+
+                console.log("Initialisation des boutons");
+                initializeCartButtons();
+                initializeProductClick(); // Initialise les événements pour la redirection
+            } catch (error) {
+                console.error('Erreur détaillée lors du chargement des produits:', error);
+                const productsContainer = document.querySelector('.products-row');
+                productsContainer.innerHTML = `
+                    <div class="col-12 text-center text-danger">
+                        Une erreur est survenue lors du chargement des produits.
+                        <br>
+                        Détails: ${error.message}
+                    </div>`;
+            }
+        };
+
+        // Fonction pour créer l'élément HTML d'un produit
+        const createProductElement = (product) => {
+            console.log("Création de l'élément pour le produit:", product.name);
+            const imagePath = product.image
+                ? `/images/product/${product.image}`
+                : '/assets/img/products/product-img-1.jpg';
+
+            return `
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="single-product-item clickable" style="padding-bottom: 10px; cursor: pointer" data-product-id="${product.product_id}">
+                        <div class="product-image">
+                            <img src="${imagePath}" alt="${product.name}" style="max-width: 100%; height: auto;">
+                        </div>
+                        <h3>${product.name}</h3>
+                        <p class="product-price" data-price="${product.price}">
+                            ${product.price}Ar<span>/ ${product.unit_of_mesurement}</span>
+                        </p>
+                        <p class="stock">Stock: ${product.stock_quantity}</p>
+                        <input type="hidden"  
+                               value="26" 
+                               name="user_id" 
+                               class="user_id">
+                        <input type="hidden"  
+                               value="${product.product_id}" 
+                               name="product_id" 
+                               class="product_id"
+                               data-product-id="${product.product_id}">
+                        <input type="number" 
+                               min="1" 
+                               max="${product.stock_quantity}" 
+                               value="1" 
+                               name="quantity" 
+                               class="quantity"
+                               data-product-id="${product.product_id}">
+                        <a href="#" class="cart-btn" data-product-id="${product.product_id}">
+                            <i class="fas fa-shopping-cart"></i> 
+                            <span class="cart-text"></span>
+                        </a>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Fonction pour initialiser les événements des conteneurs de produit
+        const initializeProductClick = () => {
+            const productItems = document.querySelectorAll('.single-product-item.clickable');
+            productItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    // Empêcher le clic sur le bouton "Ajouter au panier" de déclencher la redirection
+                    if (!e.target.closest('.cart-btn')) {
+                        const productId = this.dataset.productId;
+                        window.location.href = `/api/singleProduct?id=${productId}`;
+                    }
+                });
+            });
+        };
+
+        // Fonction pour initialiser les événements des boutons du panier
+        const initializeCartButtons = () => {
+            const cartBtns = document.querySelectorAll('.cart-btn');
+            console.log("Nombre de boutons trouvés:", cartBtns.length);
+
+            cartBtns.forEach(cartBtn => {
+                const quantity = cartBtn.previousElementSibling;
+                const cartText = cartBtn.querySelector('.cart-text');
+
+                cartBtn.addEventListener('mouseover', function () {
+                    cartText.textContent = 'Add to Cart';
+                    quantity.style.display = 'none';
+                });
+
+                cartBtn.addEventListener('mouseout', function () {
+                    cartText.textContent = '';
+                    quantity.style.display = 'inline';
+                });
+
+                cartBtn.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    const productId = this.dataset.productId;
+                    const quantityInput = document.querySelector(`.quantity[data-product-id="${productId}"]`);
+                    const userIdInput = document.querySelector('.user_id');
+
+                    // Récupérer le prix du produit
+                    const priceElement = this.closest('.single-product-item').querySelector('.product-price');
+                    const price = parseFloat(priceElement.textContent.split('Ar')[0]);
+
+                    const cartData = {
+                        user_id: userIdInput.value,
+                        items: [{
+                            product_id: parseInt(productId),
+                            quantity: parseInt(quantityInput.value),
+                            price: price
+                        }]
+                    };
+
+                    try {
+                        const response = await fetch('http://localhost:8800/api/carts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(cartData)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Erreur lors de l\'ajout au panier');
+                        }
+
+                        const result = await response.json();
+                        window.location.reload();
+                        alert('Produit ajouté au panier avec succès!');
+
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors de l\'ajout au panier');
+                    }
+                });
+            });
+        };
+
+        // Charger les produits au chargement de la page
+        console.log("DOMContentLoaded - Démarrage du chargement");
+        loadProducts();
+    });
+</script>
+
+<div class="product-section mt-150 mb-150">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 text-center">
+                <div class="section-title">
+                    <h3><span class="orange-text">Nos</span> Produits</h3>
+                    <p>Découvrez notre sélection de produits frais et de qualité.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row products-row">
+            <!-- Les produits seront chargés ici dynamiquement -->
+            <div class="col-12 text-center">
+                Chargement des produits...
+            </div>
+        </div>
+        
+    </div>
+</div>
+<!-- end product section -->
