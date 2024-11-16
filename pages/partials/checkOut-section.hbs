@@ -328,7 +328,7 @@
         document.addEventListener("DOMContentLoaded", async function () {
             let subtotal = 0;
             try {
-                const response = await fetch('http://localhost:8800/api/carts/');
+                const response = await fetch('http://localhost:3000/api/carts/');
                 const data = await response.json();
 
                 if (!data.success) {

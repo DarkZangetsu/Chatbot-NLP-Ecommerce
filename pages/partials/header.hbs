@@ -74,7 +74,7 @@
 	<!-- end search area -->
 
 	<script>
-    const cartNumber =  fetch('http://localhost:8800/api/carts/')
+    const cartNumber =  fetch('http://localhost:3000/api/carts/')
         .then(response => response.json())
         .then(data => {
             if (data.success) {

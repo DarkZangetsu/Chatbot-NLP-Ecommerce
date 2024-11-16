@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     try {
         // Charger les détails du produit
-        const response = await fetch(`http://localhost:8800/api/products/${productId}`);
+        const response = await fetch(`http://localhost:3000/api/products/${productId}`);
         if (!response.ok) throw new Error('Erreur lors de la récupération du produit');
         
         const product = await response.json();
@@ -142,7 +142,7 @@ function setupCartButton(product) {
         };
 
         try {
-            const response = await fetch('http://localhost:8800/api/carts', {
+            const response = await fetch('http://localhost:3000/api/carts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

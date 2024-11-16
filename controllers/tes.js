@@ -5,7 +5,7 @@
         const loadProducts = async () => {
             try {
                 console.log("Début du chargement des produits");
-                const response = await fetch('http://localhost:8800/api/products');
+                const response = await fetch('http://localhost:3000/api/products');
                 const products = await response.json();
 
                 console.log("Produits reçus de l'API:", products);
@@ -105,7 +105,7 @@
                     };
 
                     try {
-                        const response = await fetch('http://localhost:8800/api/carts', {
+                        const response = await fetch('http://localhost:3000/api/carts', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -132,7 +132,7 @@
         // Fonction pour charger les catégories
         const loadCategories = async () => {
             try {
-                const response = await fetch('http://localhost:8800/api/categories');
+                const response = await fetch('http://localhost:3000/api/categories');
                 const categories = await response.json();
                 console.log('Loaded categories:', categories);
 
@@ -154,7 +154,7 @@
         // Fonction pour mettre à jour un produit
         async function updateProduct(productId, formData) {
             try {
-                const response = await fetch(`http://localhost:8800/api/products/${productId}`, {
+                const response = await fetch(`http://localhost:3000/api/products/${productId}`, {
                     method: 'PUT',
                     body: formData
                 });
@@ -275,7 +275,7 @@
                     }
 
                     try {
-                        const response = await fetch(`http://localhost:8800/api/products/${productId}`, {
+                        const response = await fetch(`http://localhost:3000/api/products/${productId}`, {
                             method: 'DELETE'
                         });
 

@@ -1,54 +1,13 @@
+//nlpController.js
 import natural from 'natural';
-import db from '../db/dbConnection.js';  // Modifié pour utiliser l'import default
+import db from '../db/dbConnection.js';
+import { initializeNLP, classifier } from './initilalizeNLP.js';
 
 // Initialisation du tokenizer
 const tokenizer = new natural.WordTokenizer();
-const classifier = new natural.LogisticRegressionClassifier();
 
 // Variable pour stocker les produits en cache
 let productsCache = null;
-
-// Fonction pour initialiser le classificateur
-const initializeNLP = async () => {
-  try {
-    // Intentions pour la recherche de produits
-    classifier.addDocument('montre-moi les produits', 'show_products');
-    classifier.addDocument('liste des produits', 'show_products');
-    classifier.addDocument('que vendez-vous', 'show_products');
-    classifier.addDocument('voir les produits', 'show_products');
-    classifier.addDocument('produits disponibles', 'show_products');
-    
-    // Intentions pour les détails d'un produit
-    classifier.addDocument('détails du produit', 'product_details');
-    classifier.addDocument('information sur', 'product_details');
-    classifier.addDocument('prix de', 'product_details');
-    classifier.addDocument('caractéristiques de', 'product_details');
-    classifier.addDocument('description de', 'product_details');
-    
-    // Intentions pour l'ajout au panier
-    classifier.addDocument('ajouter au panier', 'add_to_cart');
-    classifier.addDocument('je veux acheter', 'add_to_cart');
-    classifier.addDocument('commander', 'add_to_cart');
-    classifier.addDocument('acheter', 'add_to_cart');
-    classifier.addDocument('mettre dans le panier', 'add_to_cart');
-
-    // Intentions pour l'aide
-    classifier.addDocument('aide', 'help');
-    classifier.addDocument('comment ça marche', 'help');
-    classifier.addDocument('besoin d\'aide', 'help');
-    classifier.addDocument('assistance', 'help');
-
-    // Entraînement du classificateur
-    classifier.train();
-
-    // Charger les produits en cache
-    productsCache = await getProducts();
-    console.log('NLP system initialized successfully');
-  } catch (error) {
-    console.error('Error initializing NLP system:', error);
-    throw error;
-  }
-};
 
 // Fonctions utilitaires pour la base de données
 const getProducts = () => {
@@ -57,7 +16,14 @@ const getProducts = () => {
       'SELECT * FROM products JOIN categories ON products.category_id = categories.category_id',
       (error, results) => {
         if (error) reject(error);
-        resolve(results);
+        // Ajouter le chemin complet de l'image pour chaque produit
+        const productsWithImagePaths = results.map(product => ({
+          ...product,
+          imageUrl: `/images/product/${product.image}`
+         
+        }));
+        console.log(productsWithImagePaths.map(p => p.imageUrl));
+        resolve(productsWithImagePaths);
       }
     );
   });
@@ -117,6 +83,60 @@ const findProductByName = (searchTerm) => {
   );
 };
 
+// Nouvelles fonctions utilitaires pour gérer les nouvelles intentions
+const handleGreeting = () => {
+  const greetings = [
+    "Bonjour! Comment puis-je vous aider aujourd'hui?",
+    "Bienvenue! Que puis-je faire pour vous?",
+    "Bonjour! Je suis là pour vous aider avec vos achats."
+  ];
+  return { reply: greetings[Math.floor(Math.random() * greetings.length)] };
+};
+
+const handleGoodbye = () => {
+  const goodbyes = [
+    "Au revoir! Merci de votre visite.",
+    "À bientôt! Passez une excellente journée.",
+    "Merci de votre visite, à bientôt!"
+  ];
+  return { reply: goodbyes[Math.floor(Math.random() * goodbyes.length)] };
+};
+
+const handleThanks = () => {
+  const responses = [
+    "Je vous en prie! Y a-t-il autre chose que je peux faire pour vous?",
+    "C'est un plaisir! Puis-je vous aider avec autre chose?",
+    "De rien! N'hésitez pas si vous avez d'autres questions."
+  ];
+  return { reply: responses[Math.floor(Math.random() * responses.length)] };
+};
+
+const handleNextStep = (currentState) => {
+  // État à maintenir dans la session utilisateur
+  return {
+    reply: "Que souhaitez-vous faire maintenant? Vous pouvez:\n" +
+           "- Continuer vos achats\n" +
+           "- Voir votre panier\n" +
+           "- Passer à la caisse"
+  };
+};
+
+const handleConfirmation = (currentState) => {
+  return {
+    reply: "Voulez-vous confirmer cette action? Dites 'oui' pour continuer ou 'non' pour annuler."
+  };
+};
+
+const handleMoreInfo = () => {
+  return {
+    reply: "Que souhaitez-vous savoir de plus? Je peux vous donner:\n" +
+           "- Plus de détails sur un produit\n" +
+           "- Des informations sur nos services\n" +
+           "- Des conseils d'utilisation"
+  };
+};
+
+
 // Gestionnaire principal des messages
 const handleMessage = async (message) => {
   try {
@@ -125,14 +145,12 @@ const handleMessage = async (message) => {
     
     switch (intent) {
       case 'show_products':
-        // Rafraîchir le cache des produits
         productsCache = await getProducts();
         return {
-          reply: `Voici nos produits disponibles:\n${productsCache.map(p => 
-            `- ${p.name} (${p.price}€/${p.unit_of_mesurement})`).join('\n')}`,
-          products: productsCache
+          reply: `Voici nos produits disponibles:\n${productsCache.map(p =>
+            `- ${p.name} (${p.price}Ar/${p.unit_of_mesurement})`).join('\n')}`,
         };
-        
+              
       case 'product_details':
         const productTerms = tokens.filter(token => token.length > 2);
         let foundProduct = null;
@@ -144,8 +162,15 @@ const handleMessage = async (message) => {
         
         if (foundProduct) {
           return {
-            reply: `${foundProduct.name}\nPrix: ${foundProduct.price}€/${foundProduct.unit_of_mesurement}\n${foundProduct.description}`,
-            product: foundProduct
+            reply: `${foundProduct.name}\nPrix: ${foundProduct.price}Ar/${foundProduct.unit_of_mesurement}\n${foundProduct.description}`,
+            product: {
+              name: foundProduct.name,
+              price: foundProduct.price,
+              unit_of_measurement: foundProduct.unit_of_mesurement,
+              description: foundProduct.description,
+              imageUrl: `/images/product/${foundProduct.image}`,
+              imageHtml: `<img src="${ `./public/images/product/${foundProduct.image}` }" alt="${foundProduct.name}" />`
+            }
           };
         }
         return { reply: "Je n'ai pas trouvé ce produit. Pouvez-vous préciser?" };
@@ -165,11 +190,56 @@ const handleMessage = async (message) => {
         }
         return { reply: "Je n'ai pas compris quel produit vous souhaitez ajouter. Pouvez-vous préciser?" };
 
+        case 'greeting':
+        return handleGreeting();
+        
+      case 'goodbye':
+        return handleGoodbye();
+        
+      case 'thanks':
+        return handleThanks();
+        
+      case 'next_step':
+        return handleNextStep(userState);
+        
+      case 'confirmation':
+        return handleConfirmation(userState);
+        
+      case 'more_info':
+        return handleMoreInfo();
+        
+      case 'polite':
+        return {
+          reply: "Je vous en prie! Comment puis-je vous aider?"
+        };
+        
+      case 'acknowledge':
+        return {
+          reply: "Très bien. Que souhaitez-vous faire ensuite?"
+        };
+        
+      case 'positive':
+        return {
+          reply: "Je suis ravi que cela vous convienne! Puis-je faire autre chose pour vous?"
+        };
+        
+      case 'pause':
+        return {
+          reply: "D'accord, je vous attends. Prenez votre temps!",
+          action: 'pause_conversation'
+        };
+        
+      case 'continue':
+        return {
+          reply: "Je suis là pour continuer à vous aider. Que souhaitez-vous faire?",
+          action: 'resume_conversation'
+        };
+
       case 'help':
         return {
           reply: "Je peux vous aider à :\n" +
                 "- Voir la liste des produits disponibles\n" +
-                "- Obtenir les détails d'un produit spécifique\n" +
+                "- Obtenir les détails d'un produit spécifique avec images\n" +
                 "- Ajouter des produits à votre panier\n" +
                 "Que souhaitez-vous faire ?"
         };

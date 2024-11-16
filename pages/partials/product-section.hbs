@@ -5,7 +5,7 @@
         const loadProducts = async () => {
             try {
                 console.log("Début du chargement des produits");
-                const response = await fetch('http://localhost:8800/api/products');
+                const response = await fetch('http://localhost:3000/api/products');
                 console.log("Réponse reçue:", response);
 
                 const products = await response.json();
@@ -139,7 +139,7 @@
                     };
 
                     try {
-                        const response = await fetch('http://localhost:8800/api/carts', {
+                        const response = await fetch('http://localhost:3000/api/carts', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

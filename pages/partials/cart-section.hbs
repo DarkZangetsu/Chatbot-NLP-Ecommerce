@@ -62,7 +62,7 @@
                         </tbody>
                     </table>
                     <div class="cart-buttons">
-                        <a href="http://localhost:8800/api/checkout/" class="boxed-btn black">Check Out</a>
+                        <a href="http://localhost:3000/api/checkout/" class="boxed-btn black">Check Out</a>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
     document.addEventListener("DOMContentLoaded", async function () {
         let subtotal = 0;
         try {
-            const response = await fetch('http://localhost:8800/api/carts/');
+            const response = await fetch('http://localhost:3000/api/carts/');
             const data = await response.json();
 
             if (!data.success) {
@@ -178,7 +178,7 @@
             let subtotal = 0;
             let totalCost = 0;
             try {
-                const response = await fetch('http://localhost:8800/api/carts/');
+                const response = await fetch('http://localhost:3000/api/carts/');
                 const data = await response.json();
 
                 if (!data.success) {
@@ -284,7 +284,7 @@
                 if (userConfirmed) {
                     try {
                         // Envoie une requête PUT pour mettre à jour la quantité de l'article dans le panier
-                        const response = await fetch(`http://localhost:8800/api/carts/${cartItemId}`, {
+                        const response = await fetch(`http://localhost:3000/api/carts/${cartItemId}`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -329,7 +329,7 @@
                 if (userConfirmed) {
                     try {
                         // Envoyer une requête DELETE pour supprimer l'article
-                        const response = await fetch(`http://localhost:8800/api/carts/${cartId}`, {
+                        const response = await fetch(`http://localhost:3000/api/carts/${cartId}`, {
                             method: 'DELETE',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -343,7 +343,7 @@
                             alert(result.message);
                             // Rafraîchir le panier pour mettre à jour l'affichage
                             refreshCart();
-                            fetch('http://localhost:8800/api/carts/')
+                            fetch('http://localhost:3000/api/carts/')
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
