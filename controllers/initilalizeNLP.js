@@ -1,7 +1,26 @@
 import natural from 'natural';
+import db from '../db/dbConnection.js';
 
 const classifier = new natural.LogisticRegressionClassifier();
 let productsCache = null;
+
+// Export de la fonction getProducts
+export const getProducts = () => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        'SELECT * FROM products JOIN categories ON products.category_id = categories.category_id',
+        (error, results) => {
+          if (error) reject(error);
+          const productsWithImagePaths = results.map(product => ({
+            ...product,
+            imageUrl: `/images/product/${product.image}`
+          }));
+          resolve(productsWithImagePaths);
+        }
+      );
+    });
+  };
+  
 
 const initializeNLP = async () => {
     try {
@@ -93,6 +112,8 @@ const initializeNLP = async () => {
       // Intentions pour les détails d'un produit
       // Questions sur les caractéristiques générales
       classifier.addDocument('détails du produit', 'product_details');
+      classifier.addDocument('détails d produit', 'product_details');
+      classifier.addDocument('détails de produit', 'product_details');
       classifier.addDocument('caractéristiques du produit', 'product_details');
       classifier.addDocument('propriétés du produit', 'product_details');
       classifier.addDocument('spécifications du produit', 'product_details');

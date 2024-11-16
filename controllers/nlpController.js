@@ -151,29 +151,27 @@ const handleMessage = async (message) => {
             `- ${p.name} (${p.price}Ar/${p.unit_of_mesurement})`).join('\n')}`,
         };
               
-      case 'product_details':
-        const productTerms = tokens.filter(token => token.length > 2);
-        let foundProduct = null;
-        
-        for (const term of productTerms) {
-          foundProduct = findProductByName(term);
-          if (foundProduct) break;
-        }
-        
-        if (foundProduct) {
-          return {
-            reply: `${foundProduct.name}\nPrix: ${foundProduct.price}Ar/${foundProduct.unit_of_mesurement}\n${foundProduct.description}`,
-            product: {
-              name: foundProduct.name,
-              price: foundProduct.price,
-              unit_of_measurement: foundProduct.unit_of_mesurement,
-              description: foundProduct.description,
-              imageUrl: `/images/product/${foundProduct.image}`,
-              imageHtml: `<img src="${ `./public/images/product/${foundProduct.image}` }" alt="${foundProduct.name}" />`
-            }
-          };
-        }
-        return { reply: "Je n'ai pas trouvé ce produit. Pouvez-vous préciser?" };
+        case 'product_details':
+          const productTerms = tokens.filter(token => token.length > 2);
+          let foundProduct = null;
+          
+          for (const term of productTerms) {
+            foundProduct = findProductByName(term);
+            if (foundProduct) break;
+          }
+          
+          if (foundProduct) {
+            return {
+              product: {
+                name: foundProduct.name,
+                price: foundProduct.price,
+                unit_of_measurement: foundProduct.unit_of_mesurement,
+                description: foundProduct.description,
+                imageUrl: `/images/product/${foundProduct.image}`
+              }
+            };
+          }
+          return { reply: "Je n'ai pas trouvé ce produit. Pouvez-vous préciser?" };
         
       case 'add_to_cart':
         const productToAdd = tokens
