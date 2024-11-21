@@ -7,6 +7,7 @@ import dfWebhook from './dfWebhook.js';
 // Ajouter l'import du contrôleur Dialogflow
 import handleNLPRequest from '../controllers/nlpController.js';
 
+
 const router = express.Router();
 
 
@@ -48,9 +49,8 @@ router.get("/productList", (req, res) => {
 
 
 
-// Route pour gérer les messages Dialogflow
+// Route pour gérer les messages NLP
 router.post('/send-msg', handleNLPRequest);
-
 
 // Routes pour les catégories, produits, carts
 router.use('/categories', categRoutes);
