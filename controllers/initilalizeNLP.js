@@ -123,6 +123,12 @@ const initializeNLP = async () => {
       classifier.addDocument('description complète', 'product_details');
       classifier.addDocument('plus d\'informations', 'product_details');
       classifier.addDocument('en savoir plus', 'product_details');
+      classifier.addDocument('', 'product_details');
+      classifier.addDocument('details de', 'product_details');
+      classifier.addDocument('details', 'product_details');
+      classifier.addDocument('info sur', 'product_details');
+      classifier.addDocument('info de', 'product_details');
+
   
       // Questions sur le prix
       classifier.addDocument('prix du produit', 'product_details');
@@ -234,8 +240,7 @@ const initializeNLP = async () => {
   
   
   
-      
-      // Intentions pour l'ajout au panier
+      // Intentions génériques pour l'ajout au panier
       classifier.addDocument('ajouter au panier', 'add_to_cart');
       classifier.addDocument('je veux acheter', 'add_to_cart');
       classifier.addDocument('commander', 'add_to_cart');
@@ -251,6 +256,90 @@ const initializeNLP = async () => {
       classifier.addDocument('mettre de côté', 'add_to_cart');
       classifier.addDocument('je veux commander', 'add_to_cart');
       classifier.addDocument('achat immédiat', 'add_to_cart');
+
+      // Intentions plus formelles
+      classifier.addDocument('je souhaiterais commander', 'add_to_cart');
+      classifier.addDocument('je désirerais acquérir', 'add_to_cart');
+      classifier.addDocument('je serais intéressé par', 'add_to_cart');
+
+      // Intentions conversationnelles
+      classifier.addDocument('je prendrai ça', 'add_to_cart');
+      classifier.addDocument('ça m\'intéresse', 'add_to_cart');
+      classifier.addDocument('je le veux', 'add_to_cart');
+      classifier.addDocument('je le prends', 'add_to_cart');
+
+      // Intentions avec quantité
+      classifier.addDocument('je veux 2 de ça', 'add_to_cart');
+      classifier.addDocument('donnez-moi 3', 'add_to_cart');
+      classifier.addDocument('j\'en prends 5', 'add_to_cart');
+      classifier.addDocument('je commande plusieurs', 'add_to_cart');
+
+      // Intentions avec contexte de produit
+      classifier.addDocument('je veux ce produit', 'add_to_cart');
+      classifier.addDocument('je veux cet article', 'add_to_cart');
+      classifier.addDocument('je choisis celui-ci', 'add_to_cart');
+      classifier.addDocument('celui-là m\'intéresse', 'add_to_cart');
+
+      // Intentions avec intention d'achat urgente
+      classifier.addDocument('je veux ça maintenant', 'add_to_cart');
+      classifier.addDocument('je veux acheter de suite', 'add_to_cart');
+      classifier.addDocument('je fonce', 'add_to_cart');
+
+      // Intentions familières et spontanées
+      classifier.addDocument('allez, je le prends', 'add_to_cart');
+      classifier.addDocument('banco', 'add_to_cart');
+      classifier.addDocument('carrément', 'add_to_cart');
+
+      // Intentions avec contexte de besoin
+      classifier.addDocument('j\'ai besoin de ça', 'add_to_cart');
+      classifier.addDocument('il me faut ça', 'add_to_cart');
+      classifier.addDocument('je dois acheter', 'add_to_cart');
+
+      // Intentions avec confirmation
+      classifier.addDocument('oui, je confirme', 'add_to_cart');
+      classifier.addDocument('c\'est bon, je prends', 'add_to_cart');
+      classifier.addDocument('parfait, je commande', 'add_to_cart');
+
+      // Intentions avec hésitation résolue
+      classifier.addDocument('bon, je me lance', 'add_to_cart');
+      classifier.addDocument('après réflexion, je le prends', 'add_to_cart');
+
+      // Intentions d'achat impulsif
+      classifier.addDocument('pourquoi pas', 'add_to_cart');
+      classifier.addDocument('tant pis', 'add_to_cart');
+      classifier.addDocument('allez', 'add_to_cart');
+
+
+      // Dans la phase d'entraînement du classificateur
+        classifier.addDocument('panier', 'view_cart');
+        classifier.addDocument('mon panier', 'view_cart');
+        classifier.addDocument('voir mon panier', 'view_cart');
+        classifier.addDocument('quels sont les produits dans mon panier', 'view_cart');
+        classifier.addDocument('contenu de mon panier', 'view_cart');
+        
+
+        classifier.addDocument('supprimer', 'cancel_cart');
+        classifier.addDocument('vider', 'cancel_cart');
+        classifier.addDocument('annuler', 'cancel_cart');
+        classifier.addDocument('annuler mon panier', 'cancel_cart');
+        classifier.addDocument('vider mon panier', 'cancel_cart');
+        classifier.addDocument('supprimer mon panier', 'cancel_cart');
+
+
+      // Nouvelles intentions pour le paiement
+      classifier.addDocument('payer', 'checkout-payment');
+      classifier.addDocument('procéder au paiement', 'checkout-payment');
+      classifier.addDocument('passer au paiement', 'checkout-payment');
+      classifier.addDocument('finaliser l\'achat', 'checkout-payment');
+      classifier.addDocument('commander', 'checkout-payment');
+      classifier.addDocument('valider mon panier', 'checkout-payment');
+      classifier.addDocument('payer mes articles', 'checkout-payment');
+      classifier.addDocument('je veux payer', 'checkout-payment');
+      classifier.addDocument('aller à la caisse', 'checkout-payment');
+      classifier.addDocument('terminer mes achats', 'checkout-payment');
+
+
+
   
       // Intentions pour l'aide
       classifier.addDocument('aide', 'help');

@@ -20,7 +20,7 @@ const getProducts = () => {
         const productsWithImagePaths = results.map(product => ({
           ...product,
           imageUrl: `/images/product/${product.image}`
-         
+
         }));
         console.log(productsWithImagePaths.map(p => p.imageUrl));
         resolve(productsWithImagePaths);
@@ -74,11 +74,19 @@ const addToCart = (userId, productId, quantity) => {
   });
 };
 
+
+// Fonction pour gérer la redirection vers le paiement
+const handleCheckoutPayment = () => {
+  return {
+    action: 'payment_link'
+  };
+};
+
 // Fonction pour trouver un produit par nom
 const findProductByName = (searchTerm) => {
   if (!productsCache) return null;
-  
-  return productsCache.find(product => 
+
+  return productsCache.find(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 };
@@ -115,9 +123,9 @@ const handleNextStep = (currentState) => {
   // État à maintenir dans la session utilisateur
   return {
     reply: "Que souhaitez-vous faire maintenant? Vous pouvez:\n" +
-           "- Continuer vos achats\n" +
-           "- Voir votre panier\n" +
-           "- Passer à la caisse"
+      "- Continuer vos achats\n" +
+      "- Voir votre panier\n" +
+      "- Passer à la caisse"
   };
 };
 
@@ -130,9 +138,9 @@ const handleConfirmation = (currentState) => {
 const handleMoreInfo = () => {
   return {
     reply: "Que souhaitez-vous savoir de plus? Je peux vous donner:\n" +
-           "- Plus de détails sur un produit\n" +
-           "- Des informations sur nos services\n" +
-           "- Des conseils d'utilisation"
+      "- Plus de détails sur un produit\n" +
+      "- Des informations sur nos services\n" +
+      "- Des conseils d'utilisation"
   };
 };
 
@@ -142,42 +150,45 @@ const handleMessage = async (message) => {
   try {
     const tokens = tokenizer.tokenize(message.toLowerCase());
     const intent = classifier.classify(message);
-    
+
     switch (intent) {
       case 'show_products':
         productsCache = await getProducts();
         return {
-          reply: `Voici nos produits disponibles:\n${productsCache.map(p =>
-            `- ${p.name} (${p.price}Ar/${p.unit_of_mesurement})`).join('\n')}`,
+          products: productsCache.map(p => ({
+            name: p.name,
+            price: p.price,
+            unit_of_mesurement: p.unit_of_mesurement,
+            imageUrl: `/images/product/${p.image}`,
+          }))
         };
-              
-        case 'product_details':
-          const productTerms = tokens.filter(token => token.length > 2);
-          let foundProduct = null;
-          
-          for (const term of productTerms) {
-            foundProduct = findProductByName(term);
-            if (foundProduct) break;
-          }
-          
-          if (foundProduct) {
-            return {
-              product: {
-                name: foundProduct.name,
-                price: foundProduct.price,
-                unit_of_measurement: foundProduct.unit_of_mesurement,
-                description: foundProduct.description,
-                imageUrl: `/images/product/${foundProduct.image}`
-              }
-            };
-          }
-          return { reply: "Je n'ai pas trouvé ce produit. Pouvez-vous préciser?" };
-        
+      case 'product_details':
+        const productTerms = tokens.filter(token => token.length > 2);
+        let foundProduct = null;
+
+        for (const term of productTerms) {
+          foundProduct = findProductByName(term);
+          if (foundProduct) break;
+        }
+
+        if (foundProduct) {
+          return {
+            product: {
+              name: foundProduct.name,
+              price: foundProduct.price,
+              unit_of_measurement: foundProduct.unit_of_mesurement,
+              description: foundProduct.description,
+              imageUrl: `/images/product/${foundProduct.image}`
+            }
+          };
+        }
+        return { reply: "Je n'ai pas trouvé ce produit. Pouvez-vous préciser?" };
+
       case 'add_to_cart':
         const productToAdd = tokens
           .filter(token => token.length > 2)
           .find(token => findProductByName(token));
-        
+
         if (productToAdd) {
           const product = findProductByName(productToAdd);
           await addToCart(1, product.product_id, 1);
@@ -188,45 +199,49 @@ const handleMessage = async (message) => {
         }
         return { reply: "Je n'ai pas compris quel produit vous souhaitez ajouter. Pouvez-vous préciser?" };
 
-        case 'greeting':
+
+        case 'checkout-payment':
+            return handleCheckoutPayment();
+
+      case 'greeting':
         return handleGreeting();
-        
+
       case 'goodbye':
         return handleGoodbye();
-        
+
       case 'thanks':
         return handleThanks();
-        
+
       case 'next_step':
         return handleNextStep(userState);
-        
+
       case 'confirmation':
         return handleConfirmation(userState);
-        
+
       case 'more_info':
         return handleMoreInfo();
-        
+
       case 'polite':
         return {
           reply: "Je vous en prie! Comment puis-je vous aider?"
         };
-        
+
       case 'acknowledge':
         return {
           reply: "Très bien. Que souhaitez-vous faire ensuite?"
         };
-        
+
       case 'positive':
         return {
           reply: "Je suis ravi que cela vous convienne! Puis-je faire autre chose pour vous?"
         };
-        
+
       case 'pause':
         return {
           reply: "D'accord, je vous attends. Prenez votre temps!",
           action: 'pause_conversation'
         };
-        
+
       case 'continue':
         return {
           reply: "Je suis là pour continuer à vous aider. Que souhaitez-vous faire?",
@@ -236,12 +251,12 @@ const handleMessage = async (message) => {
       case 'help':
         return {
           reply: "Je peux vous aider à :\n" +
-                "- Voir la liste des produits disponibles\n" +
-                "- Obtenir les détails d'un produit spécifique avec images\n" +
-                "- Ajouter des produits à votre panier\n" +
-                "Que souhaitez-vous faire ?"
+            "- Voir la liste des produits disponibles\n" +
+            "- Obtenir les détails d'un produit spécifique avec images\n" +
+            "- Ajouter des produits à votre panier\n" +
+            "Que souhaitez-vous faire ?"
         };
-        
+
       default:
         return {
           reply: "Je ne suis pas sûr de comprendre. Voulez-vous voir nos produits disponibles?"

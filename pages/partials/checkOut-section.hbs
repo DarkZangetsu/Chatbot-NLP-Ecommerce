@@ -1,3 +1,4 @@
+<link href="/assets/css/checkout.css" rel="stylesheet">
 <!-- breadcrumb-section -->
 <div class="breadcrumb-section breadcrumb-bg">
     <div class="container">
@@ -12,171 +13,7 @@
     </div>
 </div>
 <!-- end breadcrumb section -->
-<style>
-    :root {
-        --card-line-height: 1.2em;
-        --card-padding: 1em;
-        --card-radius: 0.5em;
-        --color-green: #051922;
-        --color-gray: #e2ebf6;
-        --color-dark-gray: #c4d1e1;
-        --radio-border-width: 2px;
-        --radio-size: 1.5em;
-    }
 
-
-    .grid {
-        display: grid;
-        grid-gap: var(--card-padding);
-        margin: 0 auto;
-        max-width: 60em;
-        padding: 0;
-
-        @media (min-width: 42em) {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    .card {
-        background-color: #fff;
-        border-radius: var(--card-radius);
-        position: relative;
-
-        &:hover {
-            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
-        }
-    }
-
-    .radio {
-        font-size: inherit;
-        margin: 0;
-        position: absolute;
-        right: calc(var(--card-padding) + var(--radio-border-width));
-        top: calc(var(--card-padding) + var(--radio-border-width));
-    }
-
-    @supports(-webkit-appearance: none) or (-moz-appearance: none) {
-        .radio {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background: #fff;
-            border: var(--radio-border-width) solid var(--color-gray);
-            border-radius: 50%;
-            cursor: pointer;
-            height: var(--radio-size);
-            outline: none;
-            transition:
-                background 0.2s ease-out,
-                border-color 0.2s ease-out;
-            width: var(--radio-size);
-
-            &::after {
-                border: var(--radio-border-width) solid #fff;
-                border-top: 0;
-                border-left: 0;
-                content: '';
-                display: block;
-                height: 0.75rem;
-                left: 25%;
-                position: absolute;
-                top: 50%;
-                transform:
-                    rotate(45deg) translate(-50%, -50%);
-                width: 0.375rem;
-            }
-
-            &:checked {
-                background: var(--color-green);
-                border-color: var(--color-green);
-            }
-        }
-
-        .card:hover .radio {
-            border-color: var(--color-dark-gray);
-
-            &:checked {
-                border-color: var(--color-green);
-            }
-        }
-    }
-
-    .plan-details {
-        border: var(--radio-border-width) solid var(--color-gray);
-        border-radius: var(--card-radius);
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        padding: var(--card-padding);
-        transition: border-color 0.2s ease-out;
-    }
-
-    .card:hover .plan-details {
-        border-color: var(--color-dark-gray);
-    }
-
-    .radio:checked~.plan-details {
-        border-color: var(--color-green);
-    }
-
-    .radio:focus~.plan-details {
-        box-shadow: 0 0 0 2px var(--color-dark-gray);
-    }
-
-    .radio:disabled~.plan-details {
-        color: var(--color-dark-gray);
-        cursor: default;
-    }
-
-    .radio:disabled~.plan-details .plan-type {
-        color: var(--color-dark-gray);
-    }
-
-    .card:hover .radio:disabled~.plan-details {
-        border-color: var(--color-gray);
-        box-shadow: none;
-    }
-
-    .card:hover .radio:disabled {
-        border-color: var(--color-gray);
-    }
-
-    .plan-type {
-        color: var(--color-green);
-        font-size: 1.5rem;
-        font-weight: bold;
-        line-height: 1em;
-    }
-
-    .plan-cost {
-        font-size: 2.5rem;
-        font-weight: bold;
-        padding: 0.5rem 0;
-    }
-
-    .slash {
-        font-weight: normal;
-    }
-
-    .plan-cycle {
-        font-size: 2rem;
-        font-variant: none;
-        border-bottom: none;
-        cursor: inherit;
-        text-decoration: none;
-    }
-
-    .hidden-visually {
-        border: 0;
-        clip: rect(0, 0, 0, 0);
-        height: 1px;
-        margin: -1px;
-        overflow: hidden;
-        padding: 0;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
-    }
-</style>
 <!-- check out section -->
 <div class="checkout-section mt-150 mb-150">
     <div class="container">
@@ -247,7 +84,7 @@
 
                                                         <span class="plan-details">
                                                             <span class="plan-type">En espèces</span>
-                                                          
+
                                                             <span class="plan-cost">$50<span class="slash">/</span><span
                                                                     class="plan-cycle"></span></span>
                                                         </span>
@@ -256,20 +93,22 @@
                                                         <input name="plan" class="radio" type="radio">
                                                         <span class="plan-details">
                                                             <span class="plan-type">Payer par</span>
-                                                            <img src="/assets/img/Mvola.png" alt="" srcset="" style="margin-top: 10px; height:30px; width:80px">
-                                                            
-                                                            <input type="text" name="" id="" style="width: 160px; margin-top:6px">
-                                                           
+                                                            <img src="/assets/img/Mvola.png" alt="" srcset=""
+                                                                style="margin-top: 10px; height:30px; width:80px">
+
+                                                            <input type="text" name="" id=""
+                                                                style="width: 160px; margin-top:6px">
+
                                                         </span>
                                                     </label>
                                                     <label class="card">
                                                         <input name="plan" class="radio" type="radio">
-                                                        <span class="plan-details" >
+                                                        <span class="plan-details">
                                                             <span class="plan-type">Business</span>
                                                             <span class="plan-cost">$200<span
                                                                     class="slash">/</span><span
                                                                     class="plan-cycle">mo</span></span>
-                                                           
+
                                                         </span>
                                                     </label>
                                                 </div>
@@ -340,23 +179,20 @@
 
                 // Vérifier si le panier est vide
                 if (data.carts.length === 0) {
-                    // Si le panier est vide, mettre subtotal et totalCost à 0
                     subtotal = 0;
                     const totalCost = 0;
 
-                    // Mettre à jour les éléments HTML pour afficher 0€
                     document.getElementById('subTotalAmount').textContent = `${subtotal}€`;
                     document.getElementById('totalAmount').textContent = `${totalCost}€`;
 
-                    // Afficher un message indiquant que le panier est vide
                     orderDetailsBody.innerHTML += `
-                    <tr>
-                        <td colspan="4" class="text-center">
-                            Votre panier est vide.
-                        </td>
-                    </tr>
-                `;
-                    return; // Sortir de la fonction si le panier est vide
+            <tr>
+                <td colspan="4" class="text-center">
+                    Votre panier est vide.
+                </td>
+            </tr>
+        `;
+                    return;
                 }
 
                 // Parcourir tous les paniers et leurs items
@@ -364,17 +200,22 @@
                     cart.items.forEach(item => {
                         subtotal += item.total_item_price;
                         orderDetailsHtml += `
-                        <tr>
-                            <td>${item.product_name}</td>
-                            <td>${item.cart_item_price}€</td>
-                            <td>${item.quantity}</td>
-                            <td>${item.total_item_price}€</td>
-                        </tr>
-                    `;
+                <tr>
+                    <td>
+                        <div class="product-info">
+                            <img src="${item.product_image}" alt="${item.product_name}" 
+                                 style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
+                            ${item.product_name}
+                        </td>
+                    <td>${item.cart_item_price}€</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.total_item_price}€</td>
+                </tr>
+            `;
                     });
                 });
 
-                // Injecter les lignes de produits dans le tableau
+                // Injecter les lignes de produits dans le tableau 
                 orderDetailsBody.innerHTML += orderDetailsHtml;
 
                 // Mettre à jour le subtotal et le total
@@ -383,15 +224,55 @@
                 const totalCost = subtotal + shippingCost;
                 document.getElementById('totalAmount').textContent = `${totalCost}€`;
 
+                // Ajout d'un gestionnaire d'événement pour le bouton de commande
+                const placeOrderBtn = document.querySelector('.boxed-btn');
+                placeOrderBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+
+                    // Récupérer l'adresse de livraison
+                    const shippingAddress = document.getElementById('shipping_address').value;
+
+                    if (!shippingAddress) {
+                        alert('Veuillez saisir une adresse de livraison');
+                        return;
+                    }
+
+                    try {
+                        const orderResponse = await fetch('http://localhost:3000/api/create-order', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                shippingAddress: shippingAddress,
+                                total: totalCost
+                            })
+                        });
+
+                        const orderData = await orderResponse.json();
+
+                        if (orderData.success) {
+                            // Rediriger vers la page de confirmation ou afficher un message
+                            alert('Votre commande a été passée avec succès !');
+                            window.location.href = '/confirmation'; // Optionnel
+                        } else {
+                            alert('Erreur lors de la création de la commande');
+                        }
+                    } catch (error) {
+                        console.error('Erreur lors de la création de la commande:', error);
+                        alert('Une erreur est survenue. Veuillez réessayer.');
+                    }
+                });
+
             } catch (error) {
                 console.error('Erreur:', error);
                 document.getElementById('orderDetailsBody').innerHTML += `
-                <tr>
-                    <td colspan="4" class="text-center">
-                        Une erreur est survenue lors du chargement des détails de la commande.
-                    </td>
-                </tr>
-            `;
+        <tr>
+            <td colspan="4" class="text-center">
+                Une erreur est survenue lors du chargement des détails de la commande.
+            </td>
+        </tr>
+    `;
             }
         });
     </script>
